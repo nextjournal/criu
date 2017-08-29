@@ -531,6 +531,13 @@ static int setup_opts_from_req(int sk, CriuOpts *req)
 	if (check_namespace_opts())
 		goto err;
 
+	/*
+	 * always restore connected tcp socket in TCP_CLOSE state
+	 * see https://github.com/xemul/criu/commit/2c37042821906f013634e305899cb25ff1a5a7b1
+	 * and https://github.com/nextjournal/nextjournal/issues/1717
+	 */
+	opts.tcp_close = 1;
+
 	return 0;
 
 err:
