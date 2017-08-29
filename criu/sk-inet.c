@@ -117,7 +117,7 @@ static int can_dump_ipproto(int ino, int proto)
 	return 1;
 }
 
-static int can_dump_inet_sk(const struct inet_sk_desc *sk)
+static int can_dump_inet_sk(struct inet_sk_desc *sk)
 {
 	BUG_ON((sk->sd.family != AF_INET) && (sk->sd.family != AF_INET6));
 
@@ -169,11 +169,8 @@ static int can_dump_inet_sk(const struct inet_sk_desc *sk)
 	case TCP_LAST_ACK:
 	case TCP_CLOSING:
 	case TCP_SYN_SENT:
-		if (!opts.tcp_established_ok) {
-			pr_err("Connected TCP socket, consider using --%s option.\n",
-					SK_EST_PARAM);
-			return 0;
-		}
+		sk->state = TCP_CLOSE;
+		sk->dst_port = 0; // don't try to repair socket, see dump_one_tcp in sk-tcp.c
 		break;
 	case TCP_CLOSE:
 		/* Trivial case, we just need to create a socket on restore */
